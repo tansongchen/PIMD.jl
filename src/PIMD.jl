@@ -1,5 +1,7 @@
 module PIMD
 
-# Write your package code here.
+export double
+
+const double = x -> 2x
 
 end

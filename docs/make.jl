@@ -8,7 +8,7 @@ makedocs(;
     sitename="PIMD.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://tansongchen.github.io/PIMD.jl",
+        canonical="https://tansongchen.com/PIMD.jl",
         assets=String[],
     ),
     pages=[
