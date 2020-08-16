@@ -1,6 +1,6 @@
 module PIMD
 """
-PIMD
+PIMD package implemented in Julia.
 """
 
 

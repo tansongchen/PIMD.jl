@@ -23,6 +23,11 @@ struct HamiltonianPhase <: Phase
     end
 end
 
+"""
+    Integrator(propagators...)
+
+Constructs an integrator from a series of propagator, so that within a time step these propagators act sequentially on the phase.
+"""
 struct Integrator
     propagators::Tuple{Vararg{Propagator}}
     Integrator(propagators...) = begin
@@ -35,6 +40,11 @@ end
     end
 end
 
+"""
+    md(initPhase, system, integrator!, timetable, properties)
+
+Launches an MD simulation of `system` with the initial conditions `initPhase` and collect `properties`. During the simulation, `integrator!` is used to integrate the equations of motion. With `timetable = (equilibrationSteps, sampleSteps)`, the system is first equilibrated for `equilibrationSteps` and then sampled for `sampleSteps`.
+"""
 md(initPhase::Phase, system::ClassicalSystem, integrator!::Integrator, timetable::Tuple{<:Integer, <:Integer}, properties::Vector{<:Property}) = begin
     phase = deepcopy(initPhase)
     nEquil, nSample = timetable

@@ -10,6 +10,11 @@ potentialInternal(system::IsomorphicClassicalSystem, q::AbstractArray) = .5q' * 
 potentialExternal(system::IsomorphicClassicalSystem, q::AbstractArray) = sum(system.quantum.potential, system.S * q) / system.n
 potential(system::IsomorphicClassicalSystem, q::AbstractArray) = potentialInternal(system, q) + potentialExternal(system, q)
 
+"""
+    Primitive(quantum, n)
+
+Creates an primitive isomorphic PIMD system from a quantum system, with beads number `n`.
+"""
 struct Primitive <: IsomorphicClassicalSystem
     n::Integer
     β::Real
@@ -25,6 +30,11 @@ struct Primitive <: IsomorphicClassicalSystem
     end
 end
 
+"""
+    Staging(quantum, n)
+
+Creates an staging isomorphic PIMD system from a quantum system, with beads number `n`.
+"""
 struct Staging <: IsomorphicClassicalSystem
     n::Integer
     β::Real
@@ -46,6 +56,11 @@ struct Staging <: IsomorphicClassicalSystem
     end
 end
 
+"""
+    Normal(quantum, n)
+
+Creates an normal isomorphic PIMD system from a quantum system, with beads number `n`.
+"""
 struct Normal <: IsomorphicClassicalSystem
     n::Integer
     β::Real
@@ -73,11 +88,41 @@ struct Normal <: IsomorphicClassicalSystem
     end    
 end
 
+@doc raw"""
+    estimatorPotential(phase, system)
+
+Estimates the potential energy for an isomorphic classical system under a phase.
+
+``\hat V(\boldsymbol x)=\varphi(\boldsymbol x)``
+"""
 const estimatorPotential = (phase::HamiltonianPhase, system::IsomorphicClassicalSystem) -> sum(system.quantum.potential, system.S * phase.q) / system.n
+@doc raw"""
+    estimatorKinetic(phase, system)
+
+Estimates the kinetic energy (using the primitive estimator) for an isomorphic classical system under a phase.
+
+``\hat K_{\rm p}(\boldsymbol x)=\frac n{2\beta}-\frac12\boldsymbol x^T\mathsf K\boldsymbol x``
+"""
 const estimatorKinetic = (phase::HamiltonianPhase, system::IsomorphicClassicalSystem) -> system.n / 2system.β - phase.q' * system.A * phase.q / 2
+
+@doc raw"""
+    estimatorKinetic(phase, system)
+
+Estimates the kinetic energy (using the virial estimator) for an isomorphic classical system under a phase.
+
+``\hat K_{\rm v}(\boldsymbol x)=\frac 1{2\beta}+\frac1{2n}(\bar x-\boldsymbol x)\partial{\varphi(x)}{\boldsymbol x}``
+"""
 const estimatorKineticVirial = (phase::HamiltonianPhase, system::IsomorphicClassicalSystem) -> begin
     x = system.S * phase.q
     centroid = sum(x) / length(x)
     1 / 2system.β + (centroid - x)' * system.quantum.force.(x) / system.n / 2.
 end
+
+@doc raw"""
+    estimatorHessian(phase, system)
+
+Estimates the hessian for an isomorphic classical system under a phase.
+
+``\hat H(\boldsymbol x)=\frac1n\sum_iV''(x_i)``
+"""
 const estimatorHessian = (phase::HamiltonianPhase, system::IsomorphicClassicalSystem) -> sum(system.quantum.hessian, system.S * phase.q) / system.n

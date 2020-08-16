@@ -1,5 +1,10 @@
 using ForwardDiff: derivative, gradient
 
+"""
+    OneDimensionalQuantumSystem(β, m, potential)
+
+Creates an 1D quantum system with temperature β and Hamiltonian ``H=p^2/2m+V(x)``.
+"""
 struct OneDimensionalQuantumSystem
     β::Real
     m::Real
