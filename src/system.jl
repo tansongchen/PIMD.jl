@@ -23,7 +23,7 @@ struct Primitive <: IsomorphicClassicalSystem
     S::Operator
     quantum::OneDimensionalQuantumSystem
     Primitive(quantum::OneDimensionalQuantumSystem, n::Int) = begin
-        M = quantum.m / n * I
+        M = Diagonal(quantum.m / n * I, n)
         A = stiffnessMatrix(quantum, n)
         S = I
         new(n, quantum.β, M, A, S, quantum)
@@ -115,7 +115,7 @@ Estimates the kinetic energy (using the virial estimator) for an isomorphic clas
 const estimatorKineticVirial = (phase::HamiltonianPhase, system::IsomorphicClassicalSystem) -> begin
     x = system.S * phase.q
     centroid = sum(x) / length(x)
-    1 / 2system.β + (centroid - x)' * system.quantum.force.(x) / system.n / 2.
+    1 / 2system.β + (centroid .- x)' * system.quantum.force.(x) / system.n / 2.
 end
 
 @doc raw"""

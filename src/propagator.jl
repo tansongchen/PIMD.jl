@@ -66,7 +66,7 @@ end
 end
 
 friction(system::Primitive) = √(inv(system.M) * system.A)
-friction(system::Union{Normal, Staging}) = √system.n / system.β
+friction(system::Union{Normal, Staging}) = Diagonal(√system.n / system.β * I, system.n)
 
 @doc raw"""
     GeneralizedCayleyPropagator(system, generalizedCayleyFunction, Δt)
@@ -81,12 +81,15 @@ struct GeneralizedCayleyPropagator <: Propagator
     matrixRepresentation::Matrix
     GeneralizedCayleyPropagator(system::IsomorphicClassicalSystem, generalizedCayleyFunction::Function, Δt::Real) = begin
         n = system.n
-        B = [0I inv(system.M); -system.A 0I] * Δt
+        B = Matrix([0I inv(system.M); -system.A 0I]) * Δt
         new(generalizedCayleyFunction(B))
     end
 end
-(propagator!::GeneralizedCayleyPropagator)(phase::Phase, ::ClassicalSystem) = begin
-    phase.z .= propagator!.matrixRepresentation * phase.z
+(propagator!::GeneralizedCayleyPropagator)(phase::Phase, system::ClassicalSystem) = begin
+    z = vcat(phase.q, phase.p)
+    z .= propagator!.matrixRepresentation * z
+    phase.q .= z[1:system.n]
+    phase.p .= z[system.n+1:2(system.n)]
 end
 
 const cayley = A::Matrix -> (I + A / 2) / (I - A / 2)
