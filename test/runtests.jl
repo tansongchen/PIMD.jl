@@ -12,7 +12,7 @@ quantum = OneDimensionalQuantumSystem(β, m, V)
 primitive = Primitive(quantum, n)
 energy(phase::HamiltonianPhase, system::ClassicalSystem) = kinetic(system, phase.p) + potential(system, phase.q)
 Δt = .01
-phase = HamiltonianPhase(.01randn(n), .01randn(n))
+phase = MonteCarloSample(primitive, 1)[1]
 initialEnergy = energy(phase, primitive)
 properties = [energy]
 isEnergyConserving(expected, actual) = abs(expected - actual) / expected < .01
@@ -33,6 +33,13 @@ integrator3 = begin
     B = ExternalPotentialPropagator(Δt / 2)
     C = GeneralizedCayleyPropagator(primitive, sqrtcayley, Δt)
     Integrator(B, C, B)
+end
+
+integrator4 = begin
+    B = ExternalPotentialPropagator(Δt / 2)
+    C = GeneralizedCayleyPropagator(primitive, sqrtcayley, Δt / 2)
+    O = LangevinPropagator(primitive, Δt)
+    Integrator(B, C, O, C, B)
 end
 
 @testset "PIMD Energy Conservation" begin
